@@ -1,0 +1,226 @@
+Smart Nano-satellite Attitude Propagator
+========================================
+ 
+Samir A. Rawashdeh
+snap.samir@gmail.com
+http://sar-lab.net/snap
+ 
+ 
+-----------------------------------------------------------------------------
+  Copyright (c) 2010-2018 Samir A. Rawashdeh
+  Electrical and Computer Engineering
+  University of Michigan - Dearborn
+ 
+  All rights reserved. 
+  
+  Redistribution and use in source and binary forms, with or without 
+  modification, are permitted provided that the following conditions are 
+  met:
+  
+      * Redistributions of source code must retain the above copyright 
+        notice, this list of conditions and the following disclaimer.
+      * Redistributions in binary form must reproduce the above copyright 
+        notice, this list of conditions and the following disclaimer in 
+        the documentation and/or other materials provided with the distribution
+        
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+  POSSIBILITY OF SUCH DAMAGE.
+ 
+----------------------------------------------------------------------------
+ 
+OVERVIEW
+========
+ 
+The Smart Nano-satellite Attitude Propagator is an attitude propagator for 
+satellites that can be used to analyze the environmental torques affecting a 
+satellite and to design and analyze passive attitude stabilziation techniques, 
+such as Passive Magnetic Stabilization,  Gravity Gradient Stabilziation and 
+Aerodynamic stabilization.
+ 
+The model implements:
+- A simple two-body gravitational model for orbit propagation
+- Gravity gradient torque 
+- Magnetic torque due to permanent magnets
+- Magnetic hysteresis torque and damping
+- Aerodynamic torue for spacecraft that are rotationally symmetric every 90 degrees.
+ 
+For more information on the implementation and capabilities of the model, see:
+
+  [1] S. A. Rawashdeh. “Attitude Analysis of Small Satellites Using Model-Based Simulation”, International Journal of 
+      Aerospace Engineering, vol. 2019, Article ID 3020581, 11 pages, 2019.
+ 
+  [1] Samir A. Rawashdeh, “Passive Attitude Stabilization for Small Satellites”, 
+      Master’s Thesis, University of Kentucky 2010, Lexington, KY
+    
+  [2] S. A. Rawashdeh, J. Lumpp, “Nano-Satellite Passive Attitude Stabilization 
+      Systems Design by Orbital Environment Modeling and Simulation”, AIAA 
+      Infotech@Aerospace Conference 2010, Atlanta, GA
+ 
+Notable prior work that uses SNAP:
+
+   [3]  S. Jarmak, J. Brisset, J. Colwell, A. Dove, D. Maukonen, S. A. Rawashdeh, J. Blum, L. Roed, “CubeSat particle aggregation Collision Experiment (Q-PACE): Design of a 3U CubeSat mission to investigate planetesimal formation”, in press, Nov. 2018
+
+   [4]  S. A. Rawashdeh, J. E. Lumpp, “Aerodynamic Stability for CubeSats at ISS Orbit”, Journal of Small Satellites, vol. 2, no. 1 pp. 85-104, Jul 2013.
+
+ 
+STARTING SNAP
+================
+ 
+run: SNAP.m
+ 
+The files CalcEA.m,  nuFromM.m,  randv.m,  read_tloes.m,  are used to support 
+the "Read TLEs" feature. Many of them are part of the Orbital Mechanics Library
+by Richard Rieber (found on MATLAB Central File Exchange).
+ 
+SNAP_Simulink_model_v9.slx  is the Simulink model at
+the core of SNAP. The GUI engages this model to propagate the satellite's 
+position and attitude.
+ 
+sim_parameters.mat contains the data that is populated in SNAP's GUI fields
+upon start up. When a new simulation is run and completes, sim_parameters.mat 
+is overwritten to save the state. Simulations can be saved by copying and renaming 
+sim_parameters.mat.
+ 
+SNAP_aero_CreateTorqueProfile.m is a template script to create new aerodynamic
+torque profiles. Three basic ones are provided, for 1U, 2U, and 3U CubeSats, 
+with uniform mass distribution and without deployables. 
+ 
+Simulink_InitFunction.m is a script which is run by the Simulink model as its
+"InitFcn" callback, i.e. it runs just before the simulation starts. It 
+prepares all the simulation variables (loads the sim_parameters.mat file).
+This file would be a good place to modify or override GUI values, and write 
+in new functionality. 
+ 
+The other files support other various features.
+ 
+ 
+RELEASE NOTES
+=============
+ 
+SNAP v3.0
+- Open source release. No more pre-built simulink model.
+- Aerodynamic torque simulink model as a function of shape, attitude angle, and altitude.
+- Shape modeling scripts (for aerodynamic torque)
+- Aerodynamic torque profiling scripts
+- Use of Julian Date in ECI to ECEF conversions for more accurate positioning (primarily affects magnetic models). 
+- Other minor improvements to model and user interface.
+- Some components now require Aerospace Toolbox/Blockset.
+ 
+SNAP v2.64
+- Included support for 64-bit computers by building model into a mex64 file.
+ 
+SNAP v2.0
+- Improved Hysteresis Model (continuous curve in place of parallelogram model)
+- Shorter time step for higher accuracy, at the cost of simulation duration
+- Simulink model allows user torques and forces. Open OES_r2.mdel in Simulink.
+ 
+SNAP v1.1:
+- Support for older versions of MATLAB.
+- Compiled and tested using MATLAB 2009a, tested and known working on 2010b.
+- Aerospace Blockset dependency eliminated.
+ 
+SNAP v1.0:
+- Initial release
+- Compiled for 32-bit windows. Tested on MATLAB 2010b, WinXP SP3, 3GHz Intel 
+E8400 Core2Duo, 3GB RAM.
+- Expected to work on MATLAB 2010a, 1GB RAM.
+- Aerospace Blockset dependency removed from Simulink model, however there 
+remains an Aerospace Toolbox dependency in ground track plotting script.
+ 
+ 
+DESCRIPTION OF INPUT FIELDS
+===========================
+ 
+- Orbital Information:
+    Initial Position and Initial Velocity in the Earth-Centered-Inertial 
+    (ECI) frame of reference, along with the corresponding Epoch.
+ 
+    This information can be loaded from a Two-Line Elements (TLE) file.
+    For TLE files with multiple entries, the first one from the top is 
+    used.
+    
+- Satellite Description:
+ 
+    * Satellite Mass, in kg.
+    
+    * Inertia Matrix (in kg.m^2). The inertia matrix of the satellite 
+    is critical, it's used in calculating the amount angular acceleration
+    is caused by the environmental torques, and it's also used in Gravity 
+    Gradient torque calculation (it contains information about the mass 
+    distribution) which is one of the major torques in LEO.
+    
+    The largest discrepancies in satellite simulations is often caused by 
+    poor estimates of the inertia matrix.
+ 
+    * Permanent Magnets. Used for passive magnetic stabilization. The 
+    Roll, Pitch, and Yaw angles are by convention the X, Y, Z axes 
+    throughout this project. For example, magnets placed along the 'roll' 
+    axis, is placed along the axis with inertia equal to the top-left 
+    entry of the inertia matrix.
+ 
+    * Hysteresis Material is a popular passive method to achieve angular 
+    rate damping. The three entries define the volume of hysteresis material
+    that acts along the three axes. That can be translated to the volume and 
+    orientation of the hysteresis rods. 
+ 
+    * Hysteresis Material Properties. The next fields are the magnetic 
+    properties of the hysteresis material being used.
+ 
+    * "Enable aerodynamic model" checkbox defines weather aerodynamics are 
+    enabled and used in the simulink model. For many simulations at high 
+    altitutes or highly uniform satellites, aerodynamics can be ignored. 
+    You may also chose to ignore aerodynamics in first simulations because 
+    aerodynamics involve significant more effort to create the torque profile.
+    
+    * "Open" button for aerodynamic model can be used to navigate to an aerodynamic 
+    torque profile. Some are provided. The script "SNAP_aero_CreateTorqueProfile.m" 
+    is provided as a reference to create more. 
+
+- Simulation Parameters:
+ 
+    * Simulation Duration. For Example, use 1.5 hours (90 minutes) to simulate
+    approximately 1 orbit in LEO.
+ 
+    * Initial Conditions. The initial tumble at the Orbital initial conditions
+    
+    * "Edit pre-sim script" opens the Simulink_InitFunction.m file in the editor. 
+    This is a script which is run by the Simulink model as its "InitFcn" callback, 
+    i.e. it runs just before the simulation starts. It prepares all the simulation 
+    variables (loads the sim_parameters.mat file). This file would be a good place 
+    to modify or override GUI values, and write in new functionality. 
+
+    * The plottable data can all be exported in a .mat file. It is generated in
+    the workspace folder once a simulation is completed if the checkbox is 
+    checked.
+ 
+    * An STK (Satellite Tool Kit by AGI) attitude file can be generated. It is
+    generated in the workspace folder once a simulation is completed if the 
+    checkbox is checked. 
+ 
+    * STK Instructions: To create an animation with the simulation results:
+        - Use Astrogator as the orbit propagator and give it the same
+        initial conditions as SNAP.
+        - Import the attitude file (with the .a extension) generated by
+        SNAP.
+        - Make sure the scenario start time matches the Epoch given to SNAP
+ 
+    * To zoom in or save the plots, check the last check box to load selected 
+    plots in new MATLAB figures.
+    
+        
+- Miscellaneous notes:
+    * The variable OES may appear in the software and some scripts. It's the 
+    original name I had used before SNAP. OES stands for "Orbital Environment
+    Simulator". In attempts to replace all use of OES with SNAP, problems arose 
+    since SNAP is also the name of the main scrip and the GUI. 
+
+
